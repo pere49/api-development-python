@@ -10,3 +10,6 @@ function -> async def root()
 + POST
 + DELETE
 + PUT
+
+### Working with SCHEMA
+Module: Pydantic
