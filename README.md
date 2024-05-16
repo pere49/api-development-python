@@ -24,3 +24,14 @@ Update -> PUT/PATCH
 Delete -> DELETE
 
 **Best practice and Naming convention** : always use the path plurals e.g posts(v) not post(x)
+
+
+### To run the applications
+```
+fastapi dev .\app\main.py
+```
+or
+
+```
+uvicorn app.main:app --reload
+```
