@@ -22,7 +22,8 @@ def get_posts():
 
 @app.post("/createposts")
 def create_posts(new_post: Post):
-    print(new_post.title)
+    print(new_post.rating)
+    print(new_post.model_dump())
     return {"data": f"new post"}
 
 # what we expect from the user
