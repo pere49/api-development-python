@@ -96,7 +96,7 @@ def create_posts(post: Post):
 
 @app.get("/posts/{id}")
 def get_post(id: int, response: Response):
-    post = print(id)
+    post = find_post(id)
     if not post:
         # method 1
         # response.status_code = status.HTTP_404_NOT_FOUND
