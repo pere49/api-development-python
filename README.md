@@ -1,4 +1,4 @@
-Comprehesive Api development with python course on https://www.youtube.com/watch?v=0sOvCWFmrtA
+Comprehesive Api development with python course on https://www.youtube.com/watch?v=0sOvCWFmrtA 🔥 :fire:
 
 #### Path Operation for a route
 Method -> @app.get
@@ -13,3 +13,14 @@ function -> async def root()
 
 ### Working with SCHEMA
 Module: Pydantic
+
+Example:
+what we expect from the user: title str, content str
+
+### CRUD Operations
+Create -> POST  
+Read -> GET  
+Update -> PUT/PATCH  
+Delete -> DELETE
+
+**Best practice and Naming convention** : always use the path plurals e.g posts(v) not post(x)
