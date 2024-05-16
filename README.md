@@ -4,3 +4,9 @@ Comprehesive Api development with python course on https://www.youtube.com/watch
 Method -> @app.get
 path - > "/"
 function -> async def root()
+
+### Api Methods
++ GET
++ POST
++ DELETE
++ PUT
