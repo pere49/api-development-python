@@ -35,3 +35,9 @@ or
 ```
 uvicorn app.main:app --reload
 ```
+
+## Databases
+Database management system, software that bridges the database and the client. 
+The cilent does not interact with the database directly.
+
+Structured Query Language -> language used to communicate with a DBMS
