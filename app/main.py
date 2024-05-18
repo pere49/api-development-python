@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 
 from fastapi import FastAPI, Response, status, HTTPException, Depends
 from fastapi.params import Body
-from pydantic import BaseModel
 from typing import Optional
 from random import randrange
 import psycopg2
@@ -13,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from . import models
 from .database import engine, get_db
+from .schemas import Post
 
 load_dotenv()
 
@@ -22,12 +22,7 @@ models.Base.metadata.create_all(bind=engine)
 # fastapi instance
 app = FastAPI()
 
-# what we expect from the user
-# title str, content str
-class Post(BaseModel):
-    title: str
-    content: str
-    published: bool = True
+
 
 """ Connecting to PostGres DB """
 HOST=os.getenv('HOST')
