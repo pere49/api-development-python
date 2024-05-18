@@ -28,7 +28,6 @@ class Post(BaseModel):
     title: str
     content: str
     published: bool = True
-    rating: Optional[int] = None
 
 """ Connecting to PostGres DB """
 HOST=os.getenv('HOST')
@@ -107,9 +106,7 @@ def create_posts(post: Post, db: Session = Depends(get_db)):
     # conn.commit()
 
     # Method 3: Using SQLAlchemy ORM
-    new_post = models.Posts(
-        title=post.title, content=post.content, published=post.published
-        )
+    new_post = models.Posts(**post.model_dump())
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -117,13 +114,16 @@ def create_posts(post: Post, db: Session = Depends(get_db)):
 
 
 @app.get("/posts/{id}")
-def get_post(id: int, response: Response):
+def get_post(id: int, response: Response, db: Session = Depends(get_db)):
     # Method 1: using local data
     # post = find_post(id)
 
     # Method 2: Using postgres ql
-    cursor.execute(""" SELECT * FROM posts WHERE id = %s """, (str(id)))
-    post = cursor.fetchone()
+    # cursor.execute(""" SELECT * FROM posts WHERE id = %s """, (str(id)))
+    # post = cursor.fetchone()
+
+    # Method 3: Using SQLAlchemy ORM
+    post = db.query(models.Posts).filter(models.Posts.id == id).first()
     if not post:
         # method 1
         # response.status_code = status.HTTP_404_NOT_FOUND
@@ -136,23 +136,29 @@ def get_post(id: int, response: Response):
 
 
 @app.delete("/posts/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int):
+def delete_post(id: int, db: Session = Depends(get_db)):
     # Method 1: Using local data
-    index = find_index_post(id)
+    # index = find_index_post(id)
+    # # my_posts.pop(index)
 
     # Method 2: Using POSTGRES QL
-    cursor.execute(""" DELETE FROM posts WHERE id = %s RETURNING *""", (str(id)))
-    deleted_post = cursor.fetchone()
-    if deleted_post == None:
+    # cursor.execute(""" DELETE FROM posts WHERE id = %s RETURNING *""", (str(id)))
+    # deleted_post = cursor.fetchone()
+    
+    # conn.commit()
+
+    # Method 3: Using SQLAlchemy ORM
+    post = db.query(models.Posts).filter(models.Posts.id == id)
+
+    if post.first() == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"Post with id {id} does not exist")
-    
-    # my_posts.pop(index)
-    conn.commit()
+    post.delete(synchronize_session=False)
+    db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @app.put("/posts/{id}")
-def update_post(id: int, post:Post):
+def update_post(id: int, updated_post:Post, db: Session = Depends(get_db)):
     # Method 1: using local data
     # index = find_index_post(id)
     # convert user input from front end to a dict
@@ -164,13 +170,18 @@ def update_post(id: int, post:Post):
     # print(post)
 
     # Method 2: Using PostGres ql
-    cursor.execute(""" UPDATE posts SET title = %s, content = %s WHERE id = %s RETURNING * """, 
-                   (post.title, post.content, str(id)))
-    updated_post = cursor.fetchone()
-    if updated_post == None:
+    # cursor.execute(""" UPDATE posts SET title = %s, content = %s WHERE id = %s RETURNING * """, 
+    #                (post.title, post.content, str(id)))
+    # updated_post = cursor.fetchone()
+    # conn.commit()
+    
+    # Method 3: Using SQLAlchemy ORM
+    post_query = db.query(models.Posts).filter(models.Posts.id == id) 
+    post = post_query.first()
+    if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"Post with id {id} does not exist")
     
-    conn.commit()
-    
-    return {'data': updated_post}
+    post_query.update(updated_post.model_dump())
+    db.commit()
+    return {'data': post_query.first()}
