@@ -75,32 +75,44 @@ def find_index_post(id):
 """ API Routes """
 @app.get("/sqlalchemy")
 def test_posts(db: Session = Depends(get_db)):
-    return {"status": "success"}
+    posts = db.query(models.Posts).all()
+    return {"status": posts}
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
 
 @app.get("/posts")
-def get_posts():
-    cursor.execute(""" SELECT * FROM posts; """)
-    posts = cursor.fetchall()
-    print(posts)
+def get_posts(db: Session = Depends(get_db)):
+    # Method 2: Using RAW SQL
+    # cursor.execute(""" SELECT * FROM posts; """)
+    # posts = cursor.fetchall()
+    # print(posts)
+
+    # Method 3: Using SQLAlchemy ORM
+    posts = db.query(models.Posts).all()
     return {"data": posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED)
-def create_posts(post: Post):
+def create_posts(post: Post, db: Session = Depends(get_db)):
     # Method 1 using local data
     # post_dict = post.model_dump()
     # post_dict["id"] = randrange(0, 1000000)
     # my_posts.append(post_dict)
 
-    # Method 2 using postgres database
-    cursor.execute(""" INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """, 
-                   (post.title, post.content, post.published))
-    new_post = cursor.fetchone()
-    conn.commit()
+    # Method 2 using postgres database(raw sql)
+    # cursor.execute(""" INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """, 
+    #                (post.title, post.content, post.published))
+    # new_post = cursor.fetchone()
+    # conn.commit()
 
+    # Method 3: Using SQLAlchemy ORM
+    new_post = models.Posts(
+        title=post.title, content=post.content, published=post.published
+        )
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
     return {"data": new_post}
 
 
