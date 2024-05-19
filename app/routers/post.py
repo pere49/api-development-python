@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from .. import models, database, schemas
 
 router = APIRouter(
-    prefix="/posts"
+    prefix="/posts",
+    tags=['Posts']
 )
 
 @router.get("/sqlalchemy")
