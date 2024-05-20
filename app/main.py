@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 
 
 from . import models, database, schemas, utils
-from .routers import post, user
+from .routers import post, user, auth
 
 load_dotenv()
 
@@ -66,6 +66,7 @@ def find_index_post(id):
 
 app.include_router(post.router)
 app.include_router(user.router)
+app.include_router(auth.router)
 
 """ API Routes """
 @app.get("/")
