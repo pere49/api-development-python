@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
 
 # what we expect from the user
 # title str, content str
@@ -27,3 +28,10 @@ class ResponseUser(BaseModel):
 
     class Config:
         from_attributes= True
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+class TokenData(BaseModel):
+    id: Optional[str] = None

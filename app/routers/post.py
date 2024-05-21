@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import Response, status, HTTPException, Depends, APIRouter
 from sqlalchemy.orm import Session
-from .. import models, database, schemas
+from .. import models, database, schemas, oauth
 
 router = APIRouter(
     prefix="/posts",
@@ -26,7 +26,7 @@ def get_posts(db: Session = Depends(database.get_db)):
     return posts
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.ResponsePost)
-def create_posts(post: schemas.Post, db: Session = Depends(database.get_db)):
+def create_posts(post: schemas.Post, db: Session = Depends(database.get_db), current_user: int = Depends(oauth.get_current_user)):
     # Method 1 using local data
     # post_dict = post.model_dump()
     # post_dict["id"] = randrange(0, 1000000)
@@ -40,6 +40,7 @@ def create_posts(post: schemas.Post, db: Session = Depends(database.get_db)):
 
     # Method 3: Using SQLAlchemy ORM
     new_post = models.Posts(**post.model_dump())
+    print(current_user.id)
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
@@ -67,7 +68,7 @@ def get_post(id: int, response: Response, db: Session = Depends(database.get_db)
     return post
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_post(id: int, db: Session = Depends(database.get_db)):
+def delete_post(id: int, db: Session = Depends(database.get_db), current_user: int = Depends(oauth.get_current_user)):
     # Method 1: Using local data
     # index = find_index_post(id)
     # # my_posts.pop(index)
