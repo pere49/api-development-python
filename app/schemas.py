@@ -9,10 +9,18 @@ class Post(BaseModel):
     content: str
     published: bool = True
 
+class ResponseUser(BaseModel):
+    id: int
+    email: EmailStr
+    created_at: datetime
+
+    class Config:
+        from_attributes= True
 class ResponsePost(Post):
     id: int
     created_at: datetime
     user_id: int
+    user: ResponseUser
     class Config:
         orm_mode = True
 
@@ -23,14 +31,6 @@ class UserCreate(BaseModel):
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
-
-class ResponseUser(BaseModel):
-    id: int
-    email: EmailStr
-    created_at: datetime
-
-    class Config:
-        from_attributes= True
 
 class Token(BaseModel):
     access_token: str
