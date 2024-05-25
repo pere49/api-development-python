@@ -39,7 +39,7 @@ def create_posts(post: schemas.Post, db: Session = Depends(database.get_db), cur
     # conn.commit()
 
     # Method 3: Using SQLAlchemy ORM
-    new_post = models.Posts(**post.model_dump())
+    new_post = models.Posts(user_id=current_user.id, **post.model_dump())
     print(current_user.id)
     db.add(new_post)
     db.commit()
@@ -80,17 +80,27 @@ def delete_post(id: int, db: Session = Depends(database.get_db), current_user: i
     # conn.commit()
 
     # Method 3: Using SQLAlchemy ORM
-    post = db.query(models.Posts).filter(models.Posts.id == id)
+    post_query = db.query(models.Posts).filter(models.Posts.id == id)
+    post = post_query.first()
 
-    if post.first() == None:
+    if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"Post with id {id} does not exist")
-    post.delete(synchronize_session=False)
+    
+    print(post.user_id, current_user.id)
+    if post.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not authorized to perform requested action")
+    
+    post_query.delete(synchronize_session=False)
     db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 @router.put("/{id}", response_model=schemas.ResponsePost)
-def update_post(id: int, updated_post:schemas.Post, db: Session = Depends(database.get_db)):
+def update_post(id: int, 
+                updated_post:schemas.Post, 
+                db: Session = Depends(database.get_db), 
+                current_user: int = Depends(oauth.get_current_user)):
     # Method 1: using local data
     # index = find_index_post(id)
     # convert user input from front end to a dict
@@ -113,6 +123,10 @@ def update_post(id: int, updated_post:schemas.Post, db: Session = Depends(databa
     if post == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
                             detail=f"Post with id {id} does not exist")
+    
+    if post.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Not authorized to perform requested action")
     
     post_query.update(updated_post.model_dump())
     db.commit()
