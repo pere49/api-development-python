@@ -1,7 +1,10 @@
 from typing import List
+from random import randrange
 
 from fastapi import Response, status, HTTPException, Depends, APIRouter
+from fastapi.params import Body
 from sqlalchemy.orm import Session
+
 from .. import models, database, schemas, oauth
 
 router = APIRouter(
@@ -11,18 +14,23 @@ router = APIRouter(
 
 @router.get("/sqlalchemy")
 def test_posts(db: Session = Depends(database.get_db)):
+    
     posts = db.query(models.Posts).all()
     return posts
 
 @router.get("/", response_model=List[schemas.ResponsePost])
-def get_posts(db: Session = Depends(database.get_db)):
+def get_posts(db: Session = Depends(database.get_db),
+              current_user: int = Depends(oauth.get_current_user),
+              limit: int = 10, skip: int = 0,
+              search: str = ""):
     # Method 2: Using RAW SQL
     # cursor.execute(""" SELECT * FROM posts; """)
     # posts = cursor.fetchall()
     # print(posts)
 
     # Method 3: Using SQLAlchemy ORM
-    posts = db.query(models.Posts).all()
+    posts = db.query(models.Posts).filter(
+        models.Posts.title.contains(search)).limit(limit).offset(skip).all()
     return posts
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.ResponsePost)
