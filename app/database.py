@@ -7,8 +7,9 @@ from sqlalchemy.orm import sessionmaker
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
-
 from dotenv import load_dotenv
+
+from .config import settings
 
 load_dotenv()
 
@@ -20,7 +21,7 @@ PASSWORD=os.getenv('PASSWORD')
 
 # Connection sequence for sqlalchemy database url
 # postgresql://<username>:<password>@<ip-address/host>/<database-name>
-SQLALCHEMY_DATABASE_URL = f"postgresql://{USER}:{PASSWORD}@{HOST}/{DATABASE_NAME}"
+SQLALCHEMY_DATABASE_URL = f"postgresql://{settings.database_username}:{settings.database_password}@{settings.database_hostname}:{settings.database_port}/{settings.database_name}"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
