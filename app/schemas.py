@@ -10,6 +10,7 @@ class Post(BaseModel):
     content: str
     published: bool = True
 
+
 class ResponseUser(BaseModel):
     id: int
     email: EmailStr
@@ -17,6 +18,7 @@ class ResponseUser(BaseModel):
 
     class Config:
         from_attributes= True
+
 class ResponsePost(Post):
     id: int
     created_at: datetime
@@ -24,6 +26,10 @@ class ResponsePost(Post):
     user: ResponseUser
     class Config:
         orm_mode = True
+
+class PostOut(BaseModel):
+    Posts: ResponsePost
+    votes: int
 
 class UserCreate(BaseModel):
     email: EmailStr

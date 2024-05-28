@@ -2,7 +2,7 @@ from typing import List
 from random import randrange
 
 from fastapi import Response, status, HTTPException, Depends, APIRouter
-from fastapi.params import Body
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .. import models, database, schemas, oauth
@@ -18,7 +18,8 @@ def test_posts(db: Session = Depends(database.get_db)):
     posts = db.query(models.Posts).all()
     return posts
 
-@router.get("/", response_model=List[schemas.ResponsePost])
+# @router.get("/", response_model=List[schemas.ResponsePost])
+@router.get("/", response_model=List[schemas.PostOut])
 def get_posts(db: Session = Depends(database.get_db),
               current_user: int = Depends(oauth.get_current_user),
               limit: int = 10, skip: int = 0,
@@ -29,9 +30,16 @@ def get_posts(db: Session = Depends(database.get_db),
     # print(posts)
 
     # Method 3: Using SQLAlchemy ORM
-    posts = db.query(models.Posts).filter(
+    # posts = db.query(models.Posts).filter(
+    #     models.Posts.title.contains(search)).limit(limit).offset(skip).all()
+    
+    results = db.query(models.Posts, func.count(models.Vote.post_id).label("votes")).join(
+        models.Vote, models.Vote.post_id == models.Posts.id, isouter=True
+        ).group_by(models.Posts.id).filter(
         models.Posts.title.contains(search)).limit(limit).offset(skip).all()
-    return posts
+
+    print(results)
+    return results
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=schemas.ResponsePost)
 def create_posts(post: schemas.Post, db: Session = Depends(database.get_db), current_user: int = Depends(oauth.get_current_user)):
@@ -64,7 +72,9 @@ def get_post(id: int, response: Response, db: Session = Depends(database.get_db)
     # post = cursor.fetchone()
 
     # Method 3: Using SQLAlchemy ORM
-    post = db.query(models.Posts).filter(models.Posts.id == id).first()
+    post = db.query(models.Posts, func.count(models.Vote.post_id).label("votes")
+                    ).join(models.Vote, models.Vote.post_id == models.Posts.id, isouter=True
+                           ).group_by(models.Posts.id).filter(models.Posts.id == id).first()
     if not post:
         # method 1
         # response.status_code = status.HTTP_404_NOT_FOUND
