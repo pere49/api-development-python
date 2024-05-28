@@ -62,7 +62,7 @@ def create_posts(post: schemas.Post, db: Session = Depends(database.get_db), cur
     db.refresh(new_post)
     return new_post
 
-@router.get("/{id}", response_model=schemas.ResponsePost)
+@router.get("/{id}", response_model=schemas.PostOut)
 def get_post(id: int, response: Response, db: Session = Depends(database.get_db)):
     # Method 1: using local data
     # post = find_post(id)
