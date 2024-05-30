@@ -4,8 +4,8 @@ from . import models, database
 from .routers import post, user, auth, vote
 
 
-# creating database tables
-models.Base.metadata.create_all(bind=database.engine)
+# creating database tables, not required if using alembic does not cause code break
+# models.Base.metadata.create_all(bind=database.engine)
 
 # fastapi instance
 app = FastAPI()
