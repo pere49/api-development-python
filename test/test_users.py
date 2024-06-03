@@ -17,14 +17,14 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 # Base.metadata.create_all(bind=engine)
 
 # Dependency
-def override_get_db():
-    db = TestingSessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# def override_get_db():
+#     db = TestingSessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 
-app.dependency_overrides[get_db] = override_get_db
+# app.dependency_overrides[get_db] = override_get_db
 
 @pytest.fixture
 def session():
@@ -39,13 +39,13 @@ def session():
 
 @pytest.fixture
 def client(session):
-    # run code before we run our test
-    Base.metadata.create_all(bind=engine)
-
+    def override_get_db():
+        try:
+            yield session
+        finally:
+            session.close()
+    app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
-
-    # run our code after our test finishes
-    Base.metadata.drop_all(bind=engine)
 
 def test_root(client):
     resp = client.get("/")
