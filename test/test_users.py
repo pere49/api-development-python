@@ -6,7 +6,7 @@ from app.config import settings
 
 def test_root(client):
     resp = client.get("/")
-    print(resp.json().get("message"))
+    # print(resp.json().get("message"))
     assert resp.json().get("message") == 'Hello World'
 
 
@@ -15,7 +15,7 @@ def test_create_user(client):
     res = client.post("/users/", json=user)
     
     new_user =  schemas.ResponseUser(**res.json())
-    print(new_user.email)
+    # print(new_user.email)
     assert new_user.email == "test123@gmail.com"
     assert res.status_code == 201
 
@@ -39,7 +39,7 @@ def test_login_user(client, test_user):
 def test_incorrect_login(client, test_user, email, password, status_code, detail):
     user = {"username": email, "password": password}
     res = client.post("/login", data=user)
-    print(res.json().get('detail'))
+    # print(res.json().get('detail'))
 
     assert res.status_code == status_code
     # assert res.json().get('detail') == detail
