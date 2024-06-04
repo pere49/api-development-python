@@ -25,7 +25,7 @@ class ResponsePost(Post):
     user_id: int
     user: ResponseUser
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class PostOut(BaseModel):
     Posts: ResponsePost
