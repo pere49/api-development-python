@@ -3,10 +3,15 @@ name: Build and Deploy Code
 on: [push]
 
 jobs: 
-  Explore-Github-Actions:
+  job1:
     runs-on: ubuntu-latest
     steps: 
       - name: pulling git repo
-        uses: actions/checkout@v2
-      - name: Say hi
-        run: echo "hello"
+        uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: update pip
+        uses: python -m pip install --upgrade pip
+      - name: install all dependencies
+        uses: pip install -r requirements.txt
