@@ -1,0 +1,12 @@
+name: Build and Deploy Code
+
+on: [push]
+
+jobs: 
+  Explore-Github-Actions:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: pulling git repo
+        uses: actions/checkout@v2
+      - name: Say hi
+        run: echo "hello"
